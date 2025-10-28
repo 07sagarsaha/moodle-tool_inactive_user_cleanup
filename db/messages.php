@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * tool_inactive_user_cleanup version specification
+ * Message providers for tool_inactive_user_cleanup.
  *
  * @package    tool_inactive_user_cleanup
  * @copyright  DualCube (https://dualcube.com)
@@ -25,10 +25,13 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2025102800;        // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires  = 2025040800;        // Requires Moodle version 5.0.
-$plugin->component = 'tool_inactive_user_cleanup'; // Full name of the plugin (used for diagnostics).
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release = '3.0.0 (Build: 2025102800)';
-
+$messageproviders = [
+    // Notification to inactive users about account cleanup.
+    'inactivitywarning' => [
+        'defaults' => [
+            'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
+            'email' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
+        ],
+    ],
+];
 

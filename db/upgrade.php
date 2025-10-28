@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * tool_inactive_user_cleanup version specification
+ * Upgrade script for tool_inactive_user_cleanup.
  *
  * @package    tool_inactive_user_cleanup
  * @copyright  DualCube (https://dualcube.com)
@@ -23,12 +23,28 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+/**
+ * Function to upgrade tool_inactive_user_cleanup.
+ *
+ * @param int $oldversion the version we are upgrading from
+ * @return bool result
+ */
+function xmldb_tool_inactive_user_cleanup_upgrade($oldversion) {
+    // Automatically generated Moodle v4.2.0 release upgrade line.
+    // Put any upgrade step following this.
 
-$plugin->version   = 2025102800;        // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires  = 2025040800;        // Requires Moodle version 5.0.
-$plugin->component = 'tool_inactive_user_cleanup'; // Full name of the plugin (used for diagnostics).
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release = '3.0.0 (Build: 2025102800)';
+    // Automatically generated Moodle v4.3.0 release upgrade line.
+    // Put any upgrade step following this.
 
+    // Automatically generated Moodle v4.4.0 release upgrade line.
+    // Put any upgrade step following this.
+
+    // Automatically generated Moodle v4.5.0 release upgrade line.
+    // Put any upgrade step following this.
+
+    // Automatically generated Moodle v5.0.0 release upgrade line.
+    // Put any upgrade step following this.
+
+    return true;
+}
 

@@ -40,24 +40,75 @@ class tool_inactive_user_cleanup_config_form extends moodleform {
      * Definition.
      */
     public function definition() {
+        global $DB;
+
         $mform = $this->_form;
+
+        // General settings header.
         $mform->addElement('header', 'configheader', get_string('setting', 'tool_inactive_user_cleanup'));
+
+        // Days of inactivity.
         $mform->addElement('text', 'config_daysofinactivity', get_string('daysofinactivity', 'tool_inactive_user_cleanup'));
-        $mform->addElement('text', 'config_daysbeforedeletion', get_string('daysbeforedeletion', 'tool_inactive_user_cleanup'));
-        $mform->addElement('static', 'description', '', get_string('deletiondescription', 'tool_inactive_user_cleanup'));
-        $mform->setDefault('config_daysofinactivity', '365');
         $mform->setType('config_daysofinactivity', PARAM_INT);
-        $mform->setDefault('config_daysbeforedeletion', '10');
+        $mform->setDefault('config_daysofinactivity', 365);
+        $mform->addRule('config_daysofinactivity', null, 'required', null, 'client');
+        $mform->addRule('config_daysofinactivity', null, 'numeric', null, 'client');
+
+        // Days before deletion.
+        $mform->addElement('text', 'config_daysbeforedeletion', get_string('daysbeforedeletion', 'tool_inactive_user_cleanup'));
         $mform->setType('config_daysbeforedeletion', PARAM_INT);
+        $mform->setDefault('config_daysbeforedeletion', 10);
+        $mform->addRule('config_daysbeforedeletion', null, 'required', null, 'client');
+        $mform->addRule('config_daysbeforedeletion', null, 'numeric', null, 'client');
+        $mform->addElement('static', 'description', '', get_string('deletiondescription', 'tool_inactive_user_cleanup'));
+
+        // Exclusion settings.
+        $mform->addElement('header', 'exclusionheader', get_string('exclusionsettings', 'tool_inactive_user_cleanup'));
+
+        // Excluded roles.
+        $roles = role_get_names(\context_system::instance());
+        $roleoptions = [];
+        foreach ($roles as $role) {
+            $roleoptions[$role->id] = $role->localname;
+        }
+        $select = $mform->addElement('select', 'config_excludedroles',
+                                      get_string('excludedroles', 'tool_inactive_user_cleanup'),
+                                      $roleoptions);
+        $select->setMultiple(true);
+        $mform->addHelpButton('config_excludedroles', 'excludedroles', 'tool_inactive_user_cleanup');
+
+        // Excluded cohorts.
+        $cohorts = $DB->get_records_menu('cohort', null, 'name', 'id, name');
+        if (!empty($cohorts)) {
+            $select = $mform->addElement('select', 'config_excludecohorts',
+                                          get_string('excludecohorts', 'tool_inactive_user_cleanup'),
+                                          $cohorts);
+            $select->setMultiple(true);
+            $mform->addHelpButton('config_excludecohorts', 'excludecohorts', 'tool_inactive_user_cleanup');
+        }
+
+        // Email settings header.
         $mform->addElement('header', 'config_headeremail', get_string('emailsetting', 'tool_inactive_user_cleanup'));
+
+        // Email subject.
         $mform->addElement('text', 'config_subjectemail', get_string('emailsubject', 'tool_inactive_user_cleanup'));
-        $editoroptions = ['trusttext' => true, 'subdirs' => true, 'maxfiles' => 1,
-        'maxbytes' => 1024];
-        $mform->addElement('editor', 'config_bodyemail', get_string('emailbody', 'tool_inactive_user_cleanup'), null, $editoroptions);
         $mform->setType('config_subjectemail', PARAM_TEXT);
-        $mform->setDefault('config_subjectemail', 'subject');
+        $mform->setDefault('config_subjectemail', get_string('emailsubject_default', 'tool_inactive_user_cleanup'));
+        $mform->addRule('config_subjectemail', null, 'required', null, 'client');
+
+        // Email body - Fixed editor options.
+        $editoroptions = [
+            'maxfiles' => 0,
+            'maxbytes' => 0,
+            'context' => \context_system::instance(),
+        ];
+        $mform->addElement('editor', 'config_bodyemail',
+                          get_string('emailbody', 'tool_inactive_user_cleanup'),
+                          null,
+                          $editoroptions);
         $mform->setType('config_bodyemail', PARAM_RAW);
-        $mform->setDefault('config_bodyemail', 'body');
+        $mform->addRule('config_bodyemail', null, 'required', null, 'client');
+
         $this->add_action_buttons();
     }
 }

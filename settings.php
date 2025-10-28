@@ -26,8 +26,22 @@
 defined('MOODLE_INTERNAL') || die;
 
 if ($hassiteconfig) {
+    // Create a category for the plugin.
+    $ADMIN->add('tools', new admin_category('toolinactiveusercleanup',
+        get_string('pluginname', 'tool_inactive_user_cleanup')));
+
+    // Add the configuration page.
+    $ADMIN->add('toolinactiveusercleanup',
+        new admin_externalpage('toolinactive_user_cleanup_settings',
+            get_string('setting', 'tool_inactive_user_cleanup'),
+            "$CFG->wwwroot/$CFG->admin/tool/inactive_user_cleanup/index.php",
+            'moodle/site:config'));
+
+    // Also add to reports for backward compatibility.
     $ADMIN->add('reports',
-        new admin_externalpage('toolinactive_user_cleanup', get_string('pluginname', 'tool_inactive_user_cleanup'),
-        "$CFG->wwwroot/$CFG->admin/tool/inactive_user_cleanup/index.php", 'moodle/site:config'));
+        new admin_externalpage('toolinactive_user_cleanup',
+            get_string('pluginname', 'tool_inactive_user_cleanup'),
+            "$CFG->wwwroot/$CFG->admin/tool/inactive_user_cleanup/index.php",
+            'moodle/site:config'));
 }
 

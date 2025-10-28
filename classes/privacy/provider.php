@@ -30,6 +30,7 @@ use core_privacy\local\request\approved_userlist;
 use core_privacy\local\request\approved_contextlist;
 use core_privacy\local\request\writer;
 use core_privacy\local\request\userlist;
+use core_privacy\local\request\transform;
 
 /**
  * Privacy Subsystem implementation for tool_inactive_user_cleanup.
@@ -156,10 +157,27 @@ class provider implements
      */
     public static function export_user_data(approved_contextlist $contextlist) {
         global $DB;
-        $subcontext = $contextlist->get_contexts();
-        $data = $DB->get_records('tool_inactive_user_cleanup');
-        foreach ($subcontext as $context) {
-            writer::with_context($context)->export_data($subcontext, $data);
+
+        if (empty($contextlist->count())) {
+            return;
+        }
+
+        $userid = $contextlist->get_user()->id;
+        $subcontext = [get_string('pluginname', 'tool_inactive_user_cleanup')];
+
+        // Get records for this specific user.
+        $records = $DB->get_records('tool_inactive_user_cleanup', ['userid' => $userid]);
+
+        foreach ($contextlist->get_contexts() as $context) {
+            // Export each record as a separate data object.
+            foreach ($records as $record) {
+                $data = (object) [
+                    'userid' => $record->userid,
+                    'emailsent' => $record->emailsent,
+                    'date' => $record->date ? transform::datetime($record->date) : null,
+                ];
+                writer::with_context($context)->export_data($subcontext, $data);
+            }
         }
     }
 

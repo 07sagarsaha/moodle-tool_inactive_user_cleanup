@@ -30,27 +30,54 @@ require_once($CFG->dirroot.'/'.$CFG->admin.'/tool/inactive_user_cleanup/settings
 require_login();
 
 admin_externalpage_setup('toolinactive_user_cleanup');
-echo $OUTPUT->header();
+
 $settingsform = new tool_inactive_user_cleanup_config_form();
-$fromdata = $settingsform->get_data();
-$configdata = get_config('tool_inactive_user_cleanup');
 
-if (!empty($configdata->daysbeforedeletion)) {
-    $data = new stdClass();
-    $data->config_daysbeforedeletion = $configdata->daysbeforedeletion;
-    $data->config_daysofinactivity = $configdata->daysofinactivity;
-    $data->config_subjectemail = $configdata->emailsubject;
-    $data->config_bodyemail['text'] = $configdata->emailbody;
-    $settingsform->set_data($data);
-}
-
-$settingsform->display();
-
-if ($settingsform->is_submitted()) {
+// Handle form submission.
+if ($fromdata = $settingsform->get_data()) {
     set_config('daysbeforedeletion', $fromdata->config_daysbeforedeletion, 'tool_inactive_user_cleanup');
     set_config('daysofinactivity', $fromdata->config_daysofinactivity, 'tool_inactive_user_cleanup');
     set_config('emailsubject', $fromdata->config_subjectemail, 'tool_inactive_user_cleanup');
     set_config('emailbody', $fromdata->config_bodyemail['text'], 'tool_inactive_user_cleanup');
+
+    // Save excluded roles and cohorts if provided.
+    if (isset($fromdata->config_excludedroles)) {
+        $excludedroles = is_array($fromdata->config_excludedroles)
+            ? implode(',', $fromdata->config_excludedroles)
+            : $fromdata->config_excludedroles;
+        set_config('excludedroles', $excludedroles, 'tool_inactive_user_cleanup');
+    }
+
+    if (isset($fromdata->config_excludecohorts)) {
+        $excludecohorts = is_array($fromdata->config_excludecohorts)
+            ? implode(',', $fromdata->config_excludecohorts)
+            : $fromdata->config_excludecohorts;
+        set_config('excludecohorts', $excludecohorts, 'tool_inactive_user_cleanup');
+    }
+
+    redirect(new moodle_url('/admin/tool/inactive_user_cleanup/index.php'),
+             get_string('changessaved'), null, \core\output\notification::NOTIFY_SUCCESS);
 }
 
+// Load existing configuration.
+$configdata = get_config('tool_inactive_user_cleanup');
+$data = new stdClass();
+$data->config_daysbeforedeletion = $configdata->daysbeforedeletion ?? 10;
+$data->config_daysofinactivity = $configdata->daysofinactivity ?? 365;
+$data->config_subjectemail = $configdata->emailsubject ?? '';
+$data->config_bodyemail['text'] = $configdata->emailbody ?? '';
+
+if (!empty($configdata->excludedroles)) {
+    $data->config_excludedroles = explode(',', $configdata->excludedroles);
+}
+
+if (!empty($configdata->excludecohorts)) {
+    $data->config_excludecohorts = explode(',', $configdata->excludecohorts);
+}
+
+$settingsform->set_data($data);
+
+echo $OUTPUT->header();
+echo $OUTPUT->heading(get_string('pluginname', 'tool_inactive_user_cleanup'));
+$settingsform->display();
 echo $OUTPUT->footer();
