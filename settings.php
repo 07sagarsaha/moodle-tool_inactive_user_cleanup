@@ -1,47 +1,73 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
-//
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
-/**
- * tool_inactive_user_cleanup setting file
- *
- * @package    tool_inactive_user_cleanup
- * @copyright  DualCube (https://dualcube.com)
- * @author     DualCube <admin@dualcube.com>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-defined('MOODLE_INTERNAL') || die;
+defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
-    // Create a category for the plugin.
-    $ADMIN->add('tools', new admin_category('toolinactiveusercleanup',
-        get_string('pluginname', 'tool_inactive_user_cleanup')));
+    $settings = new admin_settingpage(
+        'tool_inactive_user_cleanup',
+        get_string('pluginname', 'tool_inactive_user_cleanup')
+    );
 
-    // Add the configuration page.
-    $ADMIN->add('toolinactiveusercleanup',
-        new admin_externalpage('toolinactive_user_cleanup_settings',
-            get_string('setting', 'tool_inactive_user_cleanup'),
-            "$CFG->wwwroot/$CFG->admin/tool/inactive_user_cleanup/index.php",
-            'moodle/site:config'));
+    // Days of inactivity.
+    $settings->add(new admin_setting_configtext(
+        'tool_inactive_user_cleanup/daysofinactivity',
+        get_string('daysofinactivity', 'tool_inactive_user_cleanup'),
+        '',
+        365,
+        PARAM_INT
+    ));
 
-    // Also add to reports for backward compatibility.
-    $ADMIN->add('reports',
-        new admin_externalpage('toolinactive_user_cleanup',
-            get_string('pluginname', 'tool_inactive_user_cleanup'),
-            "$CFG->wwwroot/$CFG->admin/tool/inactive_user_cleanup/index.php",
-            'moodle/site:config'));
+    // Days before deletion.
+    $settings->add(new admin_setting_configtext(
+        'tool_inactive_user_cleanup/daysbeforedeletion',
+        get_string('daysbeforedeletion', 'tool_inactive_user_cleanup'),
+        '',
+        10,
+        PARAM_INT
+    ));
+
+    // Excluded roles (all checkboxes in one line).
+    $roles = role_get_names(\context_system::instance());
+    $roleoptions = [];
+    foreach ($roles as $role) {
+        $roleoptions[$role->id] = $role->localname;
+    }
+
+    $settings->add(new admin_setting_configmulticheckbox(
+        'tool_inactive_user_cleanup/excludedroles',
+        get_string('excludedroles', 'tool_inactive_user_cleanup'),
+        get_string('excludedroles_desc', 'tool_inactive_user_cleanup'),
+        [],
+        $roleoptions
+    ));
+
+    // Excluded cohorts (all checkboxes in one line).
+    $cohorts = $DB->get_records_menu('cohort', null, 'name', 'id, name');
+    if (!empty($cohorts)) {
+        $settings->add(new admin_setting_configmulticheckbox(
+            'tool_inactive_user_cleanup/excludecohorts',
+            get_string('excludecohorts', 'tool_inactive_user_cleanup'),
+            get_string('excludecohorts_desc', 'tool_inactive_user_cleanup'),
+            [],
+            $cohorts
+        ));
+    }
+
+    // Email subject.
+    $settings->add(new admin_setting_configtext(
+        'tool_inactive_user_cleanup/emailsubject',
+        get_string('emailsubject', 'tool_inactive_user_cleanup'),
+        '',
+        get_string('emailsubject_default', 'tool_inactive_user_cleanup'),
+        PARAM_TEXT
+    ));
+
+    // Email body.
+    $settings->add(new admin_setting_confightmleditor(
+        'tool_inactive_user_cleanup/emailbody',
+        get_string('emailbody', 'tool_inactive_user_cleanup'),
+        '',
+        ''
+    ));
+
+    $ADMIN->add('tools', $settings);
 }
-
