@@ -78,11 +78,11 @@ jobs:
 
       - name: Moodle Code Checker
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phpcs --max-warnings 0
-
+        run: moodle-plugin-ci phpcs --max-warnings 0 --ignore=inactive_user_cleanup/vendor/
+      
       - name: Moodle PHPDoc Checker
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phpdoc --max-warnings 0
+        run: moodle-plugin-ci phpdoc --max-warnings 0 --ignore=inactive_user_cleanup/vendor/      
 
       - name: PHP Mess Detector
         if: ${{ !cancelled() }}
