@@ -12,7 +12,6 @@ The Inactive User Cleanup plugin automatically manages inactive user accounts in
 - Warning notifications sent via Moodle messaging system (respects user preferences)
 - Configurable grace period before account deletion
 - Exclude specific users by role (e.g., teachers, managers)
-- Exclude users in specific cohorts
 - GDPR compliant with privacy API implementation
 - Scheduled task runs automatically via Moodle cron
 
@@ -58,10 +57,6 @@ Or: **Site administration > Reports > Inactive User Cleanup**
   - Users with any of the selected roles will never be cleaned up
   - Recommended: Exclude administrative and teaching roles
 
-- **Exclude users in cohorts**: Select cohorts to exclude from cleanup
-  - Users in any of the selected cohorts will be protected from cleanup
-  - Useful for special user groups
-
 #### Email Settings
 - **Subject**: Customize the notification email subject
 - **Body**: Customize the notification email body (HTML supported)
@@ -76,7 +71,6 @@ Or: **Site administration > Reports > Inactive User Cleanup**
    - Guest users
    - Site administrators
    - Have excluded roles
-   - Are in excluded cohorts
 4. **Notification**: Sends warning message via Moodle messaging system
 5. **Grace Period**: Waits for the configured "days before deletion"
 6. **Deletion**: If user remains inactive, account is deleted
@@ -118,16 +112,6 @@ To modify the schedule:
 - Check cron is running regularly
 - Review scheduled task logs
 
-### Settings not saving
-- Ensure you have `moodle/site:config` capability
-- Check for JavaScript errors in browser console
-- Verify file permissions on Moodle data directory
-
-### Unexpected deletions
-- Review excluded roles and cohorts settings
-- Check the inactivity period configuration
-- Review scheduled task execution logs
-
 ## Support
 
 For issues, questions, or feature requests:
@@ -148,7 +132,6 @@ Developed by DualCube (https://dualcube.com)
 - **Moodle 5.0 compatibility**
 - Integrated Moodle messaging system (replaces direct email)
 - Added role-based exclusions
-- Added cohort-based exclusions
 - Fixed privacy provider export_user_data bug
 - Fixed settings form editor parameters
 - Fixed settings not saving issue

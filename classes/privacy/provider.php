@@ -22,44 +22,29 @@
  * @author     DualCube <admin@dualcube.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 namespace tool_inactive_user_cleanup\privacy;
 
 use core_privacy\local\metadata\collection;
-use core_privacy\local\request\approved_userlist;
 use core_privacy\local\request\approved_contextlist;
-use core_privacy\local\request\writer;
+use core_privacy\local\request\approved_userlist;
+use core_privacy\local\request\contextlist;
 use core_privacy\local\request\userlist;
+use core_privacy\local\request\writer;
 use core_privacy\local\request\transform;
 
 /**
- * Privacy Subsystem implementation for tool_inactive_user_cleanup.
+ * Privacy provider for tool_inactive_user_cleanup
  *
- * @copyright DualCube (https://dualcube.com)
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   tool_inactive_user_cleanup
  */
 class provider implements
     \core_privacy\local\metadata\provider,
-
-    // The Enrolled Courses Block plugin contains user's enrolled courses.
     \core_privacy\local\request\plugin\provider,
-
-    \core_privacy\local\metadata\null_provider,
-
     \core_privacy\local\request\core_userlist_provider {
 
-     /**
-      * Returns meta data about this system.
-      *
-      * @param collection $collection The initialised collection to add items to.
-      * @return collection A listing of user data stored through this system.
-      */
-    public static function get_reason(): string {
-        return 'privacy:metadata';
-    }
-
     /**
-     * Describing data stored in database tables
+     * Describe data stored in the plugin's database tables.
+     *
      * @param collection $collection
      * @return collection
      */
@@ -77,83 +62,77 @@ class provider implements
     }
 
     /**
-     * Delete all data for all users in the specified context.
+     * Delete all user data for all users in a given context.
      *
-     * @param \context $context The specific context to delete data for.
+     * @param \context $context
      */
     public static function delete_data_for_all_users_in_context(\context $context) {
         global $DB;
 
-        // When we process user deletions and expiries, we always delete from the user context.
-        // As a result the cohort role assignments would be deleted, which has a knock-on effect with courses
-        // as roles may change and data may be removed earlier than it should be.
-        $allowedcontextlevels = [
-            CONTEXT_SYSTEM,
-            CONTEXT_COURSECAT,
-        ];
-        if (!in_array($context->contextlevel, $allowedcontextlevels)) {
+        if ($context->contextlevel !== CONTEXT_USER) {
             return;
         }
-        $userid = $context->get_user()->id;
+        $DB->delete_records('tool_inactive_user_cleanup', ['userid' => $context->instanceid]);
+    }
+
+    /**
+     * Delete all user data for a specific user across approved contexts.
+     *
+     * @param approved_contextlist $contextlist
+     */
+    public static function delete_data_for_user(approved_contextlist $contextlist) {
+        global $DB;
+
+        if (empty($contextlist->count())) {
+            return;
+        }
+
+        $userid = $contextlist->get_user()->id;
         $DB->delete_records('tool_inactive_user_cleanup', ['userid' => $userid]);
     }
 
     /**
-     * Delete all user data for the specified user, in the specified contexts.
+     * Delete user data for multiple users.
      *
-     * @param approved_contextlist $contextlist The approved contexts and user information to delete information for.
-     */
-    public static function delete_data_for_user(approved_contextlist $contextlist) {
-        global $DB;
-        if (empty($contextlist->count())) {
-            return;
-        }
-        $userid = $contextlist->get_user()->id;
-        foreach ($contextlist->get_contexts() as $context) {
-            $DB->delete_records('tool_inactive_user_cleanup', ['userid' => $userid]);
-        }
-    }
-
-    /**
-     * Delete all data for all users in the specified userlist.
-     *
-     * @param approved_userlist $userlist The specific userlist to delete data for.
+     * @param approved_userlist $userlist
      */
     public static function delete_data_for_users(approved_userlist $userlist) {
         global $DB;
-        list($userinsql, $userinparams) = $DB->get_in_or_equal($userlist->get_userids(), SQL_PARAMS_NAMED);
-        $params = $userinparams;
-        $sql = "userid {$userinsql}";
-        $DB->delete_records_select('tool_inactive_user_cleanup', $sql, $params);
+
+        list($sql, $params) = $DB->get_in_or_equal($userlist->get_userids(), SQL_PARAMS_NAMED);
+        $DB->delete_records_select('tool_inactive_user_cleanup', "userid {$sql}", $params);
     }
 
     /**
-     * Get the list of contexts that contain user information for the specified user.
+     * Return the contexts that contain user information for a given user.
      *
-     * @param   int           $userid       The user to search.
-     * @return  contextlist   $contextlist  The list of contexts used in this plugin.
+     * @param int $userid
+     * @return contextlist
      */
-    public static function get_contexts_for_userid(int $userid): \core_privacy\local\request\contextlist {
-        $contextlist = new \core_privacy\local\request\contextlist();
+    public static function get_contexts_for_userid(int $userid): contextlist {
+        global $DB;
+
+        $contextlist = new contextlist();
+
         $sql = "SELECT c.id
                   FROM {context} c
-            INNER JOIN {user} u ON u.id = :userid1
-             LEFT JOIN {tool_inactive_user_cleanup} iu ON iu.userid = u.id
+                  JOIN {tool_inactive_user_cleanup} t ON t.userid = c.instanceid
                  WHERE c.contextlevel = :contextlevel
-                       AND c.instanceid = u.id
-                       AND u.id = :userid2";
+                   AND t.userid = :userid";
+
         $params = [
-            'contextlevel' => CONTEXT_MODULE,
-            'userid1'      => $userid,
-            'userid2'      => $userid,
+            'contextlevel' => CONTEXT_USER,
+            'userid' => $userid,
         ];
+
         $contextlist->add_from_sql($sql, $params);
         return $contextlist;
     }
 
     /**
-     * Export all user data for the specified user, in the specified contexts, using the supplied exporter instance.
-     * @param   approved_contextlist    $contextlist    The approved contexts to export information for.
+     * Export user data for a specific user.
+     *
+     * @param approved_contextlist $contextlist
      */
     public static function export_user_data(approved_contextlist $contextlist) {
         global $DB;
@@ -163,16 +142,12 @@ class provider implements
         }
 
         $userid = $contextlist->get_user()->id;
-        $subcontext = [get_string('pluginname', 'tool_inactive_user_cleanup')];
-
-        // Get records for this specific user.
         $records = $DB->get_records('tool_inactive_user_cleanup', ['userid' => $userid]);
 
         foreach ($contextlist->get_contexts() as $context) {
-            // Export each record as a separate data object.
+            $subcontext = [get_string('pluginname', 'tool_inactive_user_cleanup')];
             foreach ($records as $record) {
-                $data = (object) [
-                    'userid' => $record->userid,
+                $data = (object)[
                     'emailsent' => $record->emailsent,
                     'date' => $record->date ? transform::datetime($record->date) : null,
                 ];
@@ -182,32 +157,23 @@ class provider implements
     }
 
     /**
-     * Get the list of users who have data within a context.
-     * @param   userlist    $userlist   The userlist containing the list of users who have data in this context/plugin combination.
+     * List users who have data in this context.
+     *
+     * @param userlist $userlist
      */
     public static function get_users_in_context(userlist $userlist) {
-        $context = $userlist->get_context();
+        global $DB;
 
-        if (!$context instanceof \context_module) {
+        $context = $userlist->get_context();
+        if ($context->contextlevel !== CONTEXT_USER) {
             return;
         }
 
-        // Get the instance ID from the context.
-        $instanceid = $context->instanceid;
+        $sql = "SELECT userid
+                  FROM {tool_inactive_user_cleanup}
+                 WHERE userid = :userid";
+        $params = ['userid' => $context->instanceid];
 
-        // Define the SQL parameters.
-        $params = [
-            'instanceid' => $instanceid,
-        ];
-
-        // Query to get users who have valid context.
-        $sql = "SELECT iu.userid 
-                  FROM {tool_inactive_user_cleanup} iu
-                  JOIN {context} c 
-                  WHERE iu.userid = c.instanceid
-                    AND c.instanceid = :instanceid";
-
-        // Add users from tool_inactive_user_cleanup table to the userlist.
         $userlist->add_from_sql('userid', $sql, $params);
     }
 }

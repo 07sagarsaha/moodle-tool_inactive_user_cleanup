@@ -48,12 +48,8 @@ $string['privacy:metadata:tool_inactive_user_cleanup:date'] = 'The date when the
 $string['messageprovider:inactivitywarning'] = 'Inactive user account warning';
 $string['excludedroles'] = 'Exclude users with roles';
 $string['excludedroles_help'] = 'Users with any of the selected roles will be excluded from the cleanup process';
-$string['excludecohorts'] = 'Exclude users in cohorts';
-$string['excludecohorts_help'] = 'Users in any of the selected cohorts will be excluded from the cleanup process';
 $string['exclusionsettings'] = 'Exclusion settings';
 $string['emailsubject_default'] = 'Your account will be deleted due to inactivity';
 $string['excludedrole'] = 'Exclude role: {$a}';
 $string['excludedroles_desc'] = 'If enabled, users with the role "{$a}" will not be deleted.';
-$string['excludecohort'] = 'Exclude cohort: {$a}';
-$string['excludecohort_desc'] = 'If enabled, users in the cohort "{$a}" will not be deleted.';
 

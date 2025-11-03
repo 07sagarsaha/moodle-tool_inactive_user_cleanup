@@ -1,4 +1,28 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * tool_inactive_user_cleanup setting file
+ *
+ * @package    tool_inactive_user_cleanup
+ * @copyright  DualCube (https://dualcube.com)
+ * @author     DualCube <admin@dualcube.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
@@ -25,7 +49,7 @@ if ($hassiteconfig) {
         PARAM_INT
     ));
 
-    // Excluded roles (all checkboxes in one line).
+    // Excluded roles.
     $roles = role_get_names(\context_system::instance());
     $roleoptions = [];
     foreach ($roles as $role) {
@@ -40,17 +64,6 @@ if ($hassiteconfig) {
         $roleoptions
     ));
 
-    // Excluded cohorts (all checkboxes in one line).
-    $cohorts = $DB->get_records_menu('cohort', null, 'name', 'id, name');
-    if (!empty($cohorts)) {
-        $settings->add(new admin_setting_configmulticheckbox(
-            'tool_inactive_user_cleanup/excludecohorts',
-            get_string('excludecohorts', 'tool_inactive_user_cleanup'),
-            get_string('excludecohorts_desc', 'tool_inactive_user_cleanup'),
-            [],
-            $cohorts
-        ));
-    }
 
     // Email subject.
     $settings->add(new admin_setting_configtext(

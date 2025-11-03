@@ -1,12 +1,48 @@
 <?php
-namespace tool_inactive_user_cleanup\task;
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * The Inactive user cleanup
+ *
+ * @package    tool_inactive_user_cleanup
+ * @copyright  DualCube (https://dualcube.com)
+ * @author     DualCube <admin@dualcube.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+namespace tool_inactive_user_cleanup\task;
+/**
+ * Scheduled task for Inactive user cleanup.
+ *
+ * @copyright DualCube (https://dualcube.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class tool_inactive_user_cleanup_task extends \core\task\scheduled_task {
 
+    /**
+     * Get a descriptive name for this task (shown to admins).
+     *
+     * @return string
+     */
     public function get_name() {
         return get_string('pluginname', 'tool_inactive_user_cleanup');
     }
 
+     /**
+     * Execute.
+     */
     public function execute() {
         global $DB;
 
@@ -28,9 +64,6 @@ class tool_inactive_user_cleanup_task extends \core\task\scheduled_task {
         $excludedroles = get_config('tool_inactive_user_cleanup', 'excludedroles');
         $excludedroles = $excludedroles ? unserialize($excludedroles) : [];
 
-        $excludecohorts = get_config('tool_inactive_user_cleanup', 'excludecohorts');
-        $excludecohorts = $excludecohorts ? unserialize($excludecohorts) : [];
-
         $users = $DB->get_records('user', ['deleted' => 0]);
 
         foreach ($users as $user) {
@@ -38,7 +71,7 @@ class tool_inactive_user_cleanup_task extends \core\task\scheduled_task {
                 continue;
             }
         
-            if ($this->is_user_excluded($user->id, $excludedroles, $excludecohorts)) {
+            if ($this->is_user_excluded($user->id, $excludedroles)) {
                 continue;
             }
 
@@ -91,7 +124,7 @@ class tool_inactive_user_cleanup_task extends \core\task\scheduled_task {
         return message_send($message);
     }
 
-    private function is_user_excluded($userid, $excludedroles, $excludecohorts) {
+    private function is_user_excluded($userid, $excludedroles) {
         global $DB;
 
         // Check excluded roles.
@@ -100,16 +133,6 @@ class tool_inactive_user_cleanup_task extends \core\task\scheduled_task {
             $roleparams['userid'] = $userid;
             $sql = "SELECT 1 FROM {role_assignments} WHERE userid = :userid AND roleid $rolesql";
             if ($DB->record_exists_sql($sql, $roleparams)) {
-                return true;
-            }
-        }
-
-        // Check excluded cohorts.
-        if (!empty($excludecohorts)) {
-            list($cohortsql, $cohortparams) = $DB->get_in_or_equal($excludecohorts, SQL_PARAMS_NAMED);
-            $cohortparams['userid'] = $userid;
-            $sql = "SELECT 1 FROM {cohort_members} WHERE userid = :userid AND cohortid $cohortsql";
-            if ($DB->record_exists_sql($sql, $cohortparams)) {
                 return true;
             }
         }
