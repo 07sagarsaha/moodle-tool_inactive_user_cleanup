@@ -38,9 +38,7 @@ use core_privacy\local\request\transform;
  * @package   tool_inactive_user_cleanup
  */
 class provider implements
-    \core_privacy\local\metadata\provider,
-    \core_privacy\local\request\core_userlist_provider,
-    \core_privacy\local\request\plugin\provider {
+    \core_privacy\local\metadata\provider, \core_privacy\local\request\core_userlist_provider, \core_privacy\local\request\plugin\provider {
     /**
      * Describe data stored in the plugin's database tables.
      *
