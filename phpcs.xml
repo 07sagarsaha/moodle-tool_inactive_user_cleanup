@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<ruleset name="Inactive User Cleanup">
+    <description>PHPCS rules for this Moodle plugin</description>
+
+    <!-- Scan all files in plugin -->
+    <file>.</file>
+
+    <!-- Ignore external and irrelevant folders -->
+    <exclude-pattern>vendor/*</exclude-pattern>
+    <exclude-pattern>node_modules/*</exclude-pattern>
+
+    <!-- Use Moodle’s default ruleset -->
+    <rule ref="moodle"/>
+</ruleset>
