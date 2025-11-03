@@ -12,7 +12,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "enrol_inactive_user_cleanup\\": "classes/"
+            "tool_inactive_user_cleanup\\": "classes/"
         }
     },
     "minimum-stability": "stable",
