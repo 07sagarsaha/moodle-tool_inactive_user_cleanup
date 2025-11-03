@@ -52,4 +52,3 @@
  $string['taskstart'] = 'Hey, admin inactive user cleanup is running';
  $string['userid'] = 'user id';
  $string['userinactivtime'] = 'User is inactive for past day ';
-
