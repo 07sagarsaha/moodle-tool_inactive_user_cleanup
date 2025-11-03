@@ -48,10 +48,6 @@ jobs:
         run: npm install
         working-directory: inactive_user_cleanup
 
-      - name: Build grunt
-        run: npm run build
-        working-directory: inactive_user_cleanup
-
       - name: Install Plugin Composer Dependencies
         run: composer install --no-dev --prefer-dist --no-progress
         working-directory: inactive_user_cleanup
@@ -114,6 +110,10 @@ jobs:
           path: ${{ github.workspace }}/moodledata/behat_dump
           retention-days: 7
           if-no-files-found: ignore
+      
+      - name: Final Cleanup - Remove Vendor
+        if: ${{ always() }}
+        run: rm -rf inactive_user_cleanup/vendor
 
       - name: Mark cancelled jobs as failed
         if: ${{ cancelled() }}
@@ -141,6 +141,14 @@ jobs:
 
       - name: Clear npm cache
         run: npm cache clean --force
+
+      - name: Install Moodle Node dependencies
+        run: npm install
+        working-directory: inactive_user_cleanup
+
+      - name: Install Composer Dependencies
+        run: composer install --no-dev --prefer-dist --no-progress
+        working-directory: inactive_user_cleanup
 
       - name: Prepare Release Folder
         run: mkdir -p release
