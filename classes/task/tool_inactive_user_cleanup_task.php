@@ -41,8 +41,8 @@ class tool_inactive_user_cleanup_task extends \core\task\scheduled_task {
     }
 
      /**
-     * Execute.
-     */
+      * Execute.
+      */
     public function execute() {
         global $DB;
 
@@ -70,7 +70,7 @@ class tool_inactive_user_cleanup_task extends \core\task\scheduled_task {
             if (isguestuser($user->id) || is_siteadmin($user->id)) {
                 continue;
             }
-        
+
             if ($this->is_user_excluded($user->id, $excludedroles)) {
                 continue;
             }
@@ -105,7 +105,7 @@ class tool_inactive_user_cleanup_task extends \core\task\scheduled_task {
                 }
             }
             mtrace(get_string('taskend', 'tool_inactive_user_cleanup'));
-        }        
+        }
     }
 
     private function send_inactivity_notification($user, $subject, $messagetext, $messagehtml) {
