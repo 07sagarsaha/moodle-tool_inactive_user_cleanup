@@ -2,7 +2,6 @@ inactive_user_cleanup/.git/*
 inactive_user_cleanup/.github/*
 inactive_user_cleanup/composer.lock
 inactive_user_cleanup/composer.json
-inactive_user_cleanup/log.txt
 inactive_user_cleanup/phpcs.xml
 inactive_user_cleanup/.gitignore
 inactive_user_cleanup/package.json
@@ -12,6 +11,4 @@ inactive_user_cleanup/node_modules/*
 inactive_user_cleanup/phpunit.xml
 inactive_user_cleanup/tests/*
 inactive_user_cleanup/release/*
-inactive_user_cleanup/error.log
-inactive_user_cleanup/Gruntfile.js
 inactive_user_cleanup/scripts

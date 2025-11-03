@@ -30,7 +30,6 @@ namespace tool_inactive_user_cleanup\task;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class tool_inactive_user_cleanup_task extends \core\task\scheduled_task {
-
     /**
      * Get a descriptive name for this task (shown to admins).
      *
@@ -108,6 +107,15 @@ class tool_inactive_user_cleanup_task extends \core\task\scheduled_task {
         }
     }
 
+    /**
+     * Sends an inactivity notification email to a user.
+     *
+     * @param \stdClass $user The user object to send the email to.
+     * @param string $subject The subject of the email.
+     * @param string $messagetext The plain-text version of the message.
+     * @param string $messagehtml The HTML version of the message.
+     * @return bool True if the message was sent successfully, false otherwise.
+     */
     private function send_inactivity_notification($user, $subject, $messagetext, $messagehtml) {
         $message = new \core\message\message();
         $message->component = 'tool_inactive_user_cleanup';
@@ -124,12 +132,19 @@ class tool_inactive_user_cleanup_task extends \core\task\scheduled_task {
         return message_send($message);
     }
 
+    /**
+     * Checks whether a user should be excluded from the inactivity cleanup.
+     *
+     * @param int $userid The ID of the user to check.
+     * @param array $excludedroles An array of role IDs that should be excluded.
+     * @return bool True if the user is excluded, false otherwise.
+     */
     private function is_user_excluded($userid, $excludedroles) {
         global $DB;
 
         // Check excluded roles.
         if (!empty($excludedroles)) {
-            list($rolesql, $roleparams) = $DB->get_in_or_equal($excludedroles, SQL_PARAMS_NAMED);
+            [$rolesql, $roleparams] = $DB->get_in_or_equal($excludedroles, SQL_PARAMS_NAMED);
             $roleparams['userid'] = $userid;
             $sql = "SELECT 1 FROM {role_assignments} WHERE userid = :userid AND roleid $rolesql";
             if ($DB->record_exists_sql($sql, $roleparams)) {
