@@ -36,14 +36,13 @@ use core_privacy\local\request\transform;
  * Privacy provider for tool_inactive_user_cleanup
  *
  * @package   tool_inactive_user_cleanup
- * @copyright  DualCube (https://dualcube.com)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class provider implements
+// phpcs:disable Universal.OOStructures.AlphabeticExtendsImplements.ImplementsWrongOrder
     \core_privacy\local\metadata\provider,
-    \core_privacy\local\request\plugin\provider,
-    \core_privacy\local\request\core_userlist_provider {
-
+    \core_privacy\local\request\core_userlist_provider,
+    \core_privacy\local\request\plugin\provider {
+// phpcs:enable
     /**
      * Describe data stored in the plugin's database tables.
      *
