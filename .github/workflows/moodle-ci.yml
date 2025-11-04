@@ -54,8 +54,7 @@ jobs:
 
       - name: Clean Extra Files from Plugin
         run: |
-          rm -rf inactive_user_cleanup/.git inactive_user_cleanup/.github inactive_user_cleanup/node_modules inactive_user_cleanup/tests inactive_user_cleanup/phpunit.xml inactive_user_cleanup/vendor
-          rm -f inactive_user_cleanup/composer.* inactive_user_cleanup/package*.json inactive_user_cleanup/webpack.config.js inactive_user_cleanup/.zipignore
+          rm -rf $(cat inactive_user_cleanup/exclude.lst | tr '\n' ' ')
 
       - name: Install moodle-plugin-ci tooling
         run: |
