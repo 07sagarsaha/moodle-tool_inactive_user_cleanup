@@ -22,6 +22,7 @@
  * @author     DualCube <admin@dualcube.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+// phpcs:disable Universal.OOStructures.AlphabeticExtendsImplements.ImplementsWrongOrder
 namespace tool_inactive_user_cleanup\privacy;
 
 use core_privacy\local\metadata\collection;
@@ -38,7 +39,6 @@ use core_privacy\local\request\transform;
  * @package   tool_inactive_user_cleanup
  */
 class provider implements
-// phpcs:disable Universal.OOStructures.AlphabeticExtendsImplements.ImplementsWrongOrder
     \core_privacy\local\metadata\provider,
     \core_privacy\local\request\core_userlist_provider,
     \core_privacy\local\request\plugin\provider {
