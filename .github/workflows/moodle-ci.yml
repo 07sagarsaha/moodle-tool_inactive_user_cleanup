@@ -26,9 +26,6 @@ jobs:
         database: [mariadb]
 
     steps:
-      - name: Clear Composer Cache
-        run: composer clear-cache
-        
       - name: Checkout Plugin
         uses: actions/checkout@v4
         with:
