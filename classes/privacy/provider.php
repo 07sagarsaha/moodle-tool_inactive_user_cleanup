@@ -27,11 +27,12 @@ namespace tool_inactive_user_cleanup\privacy;
 
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
-use core_privacy\local\request\approved_userlist;
+use core_privacy\local\request\context;
 use core_privacy\local\request\contextlist;
-use core_privacy\local\request\userlist;
-use core_privacy\local\request\writer;
 use core_privacy\local\request\transform;
+use core_privacy\local\request\writer;
+use core_privacy\local\request\userlist;
+use \core_privacy\local\request\approved_userlist;
 
 /**
  * Privacy provider for tool_inactive_user_cleanup
@@ -111,8 +112,6 @@ class provider implements
      * @return contextlist
      */
     public static function get_contexts_for_userid(int $userid): contextlist {
-        global $DB;
-
         $contextlist = new contextlist();
 
         $sql = "SELECT c.id
@@ -160,11 +159,9 @@ class provider implements
     /**
      * List users who have data in this context.
      *
-     * @param userlist $userlist
+     * @param userlist $userlist The userlist containing the list of users who have data in this context/plugin combination.
      */
     public static function get_users_in_context(userlist $userlist) {
-        global $DB;
-
         $context = $userlist->get_context();
         if ($context->contextlevel !== CONTEXT_USER) {
             return;

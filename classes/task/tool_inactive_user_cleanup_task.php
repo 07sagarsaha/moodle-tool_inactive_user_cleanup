@@ -23,13 +23,14 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace tool_inactive_user_cleanup\task;
+use core\task\scheduled_task;
 /**
  * Scheduled task for Inactive user cleanup.
  *
  * @copyright DualCube (https://dualcube.com)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class tool_inactive_user_cleanup_task extends \core\task\scheduled_task {
+class tool_inactive_user_cleanup_task extends scheduled_task {
     /**
      * Get a descriptive name for this task (shown to admins).
      *
